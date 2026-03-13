@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ola Loay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --pink: #FF1B8D;
+      --blue: #00CFFF;
+      --purple: #BF00FF;
+      --dark: #050510;
+      --grid: rgba(0, 207, 255, 0.07);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Share Tech Mono', monospace;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: gridMove 20s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes gridMove {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(50px); }
+    }
+
+    /* Scanline overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      padding: 60px 80px;
+    }
+
+    /* Corner brackets */
+    .frame {
+      position: relative;
+      padding: 60px 80px;
+    }
+
+    .frame::before, .frame::after,
+    .frame-inner::before, .frame-inner::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+    }
+
+    .frame::before {
+      top: 0; left: 0;
+      border-top: 2px solid var(--pink);
+      border-left: 2px solid var(--pink);
+      box-shadow: -4px -4px 12px var(--pink);
+    }
+    .frame::after {
+      top: 0; right: 0;
+      border-top: 2px solid var(--blue);
+      border-right: 2px solid var(--blue);
+      box-shadow: 4px -4px 12px var(--blue);
+    }
+    .frame-inner::before {
+      bottom: 0; left: 0;
+      border-bottom: 2px solid var(--blue);
+      border-left: 2px solid var(--blue);
+      box-shadow: -4px 4px 12px var(--blue);
+    }
+    .frame-inner::after {
+      bottom: 0; right: 0;
+      border-bottom: 2px solid var(--pink);
+      border-right: 2px solid var(--pink);
+      box-shadow: 4px 4px 12px var(--pink);
+    }
+
+    .status-bar {
+      font-size: 11px;
+      color: var(--blue);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      opacity: 0;
+      animation: fadeIn 0.5s 0.3s forwards;
+    }
+
+    .status-bar span {
+      color: var(--pink);
+    }
+
+    .name-wrapper {
+      position: relative;
+      margin: 20px 0 30px;
+    }
+
+    .name {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(52px, 10vw, 96px);
+      line-height: 1.1;
+      position: relative;
+      opacity: 0;
+      animation: slideUp 0.8s 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .name .word-ola {
+      display: block;
+      color: transparent;
+      -webkit-text-stroke: 2px var(--pink);
+      text-shadow:
+        0 0 20px var(--pink),
+        0 0 60px rgba(255, 27, 141, 0.4);
+      letter-spacing: 12px;
+      position: relative;
+    }
+
+    .name .word-loay {
+      display: block;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 0 20px var(--blue));
+      letter-spacing: 8px;
+    }
+   /* Glitch effect on hover */
+    .name:hover .word-ola {
+      animation: glitch 0.3s steps(2) infinite;
+    }
+
+    @keyframes glitch {
+      0%   { text-shadow: -3px 0 var(--blue), 3px 0 var(--purple), 0 0 20px var(--pink); }
+      25%  { text-shadow: 3px 0 var(--blue), -3px 0 var(--purple), 0 0 20px var(--pink); }
+      50%  { text-shadow: -3px 0 var(--pink), 3px 0 var(--blue), 0 0 20px var(--purple); }
+      75%  { text-shadow: 3px 0 var(--pink), -3px 0 var(--blue), 0 0 20px var(--purple); }
+      100% { text-shadow: -3px 0 var(--purple), 3px 0 var(--pink), 0 0 20px var(--blue); }
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 25px 0;
+      opacity: 0;
+      animation: fadeIn 0.5s 1s forwards;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--pink), var(--blue), transparent);
+    }
+
+    .divider-diamond {
+      width: 8px;
+      height: 8px;
+      background: var(--blue);
+      transform: rotate(45deg);
+      box-shadow: 0 0 10px var(--blue);
+    }
+
+    .tagline {
+      font-size: 13px;
+      letter-spacing: 5px;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeIn 0.5s 1.2s forwards;
+    }
+
+    .tagline .highlight {
+      color: var(--pink);
+      text-shadow: 0 0 8px var(--pink);
+    }
+
+    .data-points {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 40px;
+      opacity: 0;
+      animation: fadeIn 0.5s 1.5s forwards;
+    }
+
+    .data-point {
+      text-align: center;
+    }
+
+    .data-point .label {
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .data-point .value {
+      font-size: 18px;
+      color: var(--blue);
+      text-shadow: 0 0 10px var(--blue);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 2;
+      border-radius: 50%;
+      animation: floatParticle linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes floatParticle {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-20vh) scale(1.5); opacity: 0; }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Pulsing ring */
+    .pulse-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 207, 255, 0.2);
+      animation: pulse 3s ease-out infinite;
+      pointer-events: none;
+    }
+
+    .pulse-ring:nth-child(2) { animation-delay: 1s; }
+    .pulse-ring:nth-child(3) { animation-delay: 2s; }
+
+    @keyframes pulse {
+      0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    }
+
+    .rings {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="matrixCanvas"></canvas>
+
+<div class="rings">
+  <div class="pulse-ring"></div>
+  <div class="pulse-ring"></div>
+  <div class="pulse-ring"></div>
+</div>
+
+<div class="container">
+  <div class="frame">
+    <div class="frame-inner">
+
+      <div class="status-bar">
+        SYSTEM <span>ONLINE</span> &nbsp;·&nbsp; ID: <span>OL-2024</span> &nbsp;·&nbsp; STATUS: <span>ACTIVE</span>
+      </div>
+
+      <div class="name-wrapper">
+        <div class="name">
+          <span class="word-ola">OLA</span>
+          <span class="word-loay">LOAY</span>
+        </div>
+      </div>
+       <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-diamond"></div>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="tagline">
+        <span class="highlight">◈</span> &nbsp; TECH · VISION · FUTURE &nbsp; <span class="highlight">◈</span>
+      </div>
+
+      <div class="data-points">
+        <div class="data-point">
+          <div class="label">Power</div>
+          <div class="value">MAX</div>
+        </div>
+        <div class="data-point">
+          <div class="label">Mode</div>
+          <div class="value">PRO</div>
+        </div>
+        <div class="data-point">
+          <div class="label">Level</div>
+          <div class="value">∞</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Matrix rain canvas
+  const canvas = document.getElementById('matrixCanvas');
+  const ctx = canvas.getContext('2d');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノABCDEF0123456789@#$%';
+  const fontSize = 14;
+  const cols = Math.floor(canvas.width / fontSize);
+  const drops = Array(cols).fill(1);
+
+  function drawMatrix() {
+    ctx.fillStyle = 'rgba(5, 5, 16, 0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drops.forEach((y, i) => {
+      const char = chars[Math.floor(Math.random() * chars.length)];
+      const x = i * fontSize;
+
+      // Alternate colors: pink, blue, purple
+      const colors = ['#FF1B8D', '#00CFFF', '#BF00FF'];
+      const alpha = Math.random() > 0.95 ? 1 : 0.3;
+      ctx.fillStyle = colors[i % 3].replace(')', , ${alpha})).replace('rgb', 'rgba').replace('#', '');
+
+      // Simple hex color with opacity
+      if (Math.random() > 0.97) {
+        ctx.fillStyle = '#FFFFFF';
+      } else if (i % 3 === 0) {
+        ctx.fillStyle = rgba(255, 27, 141, ${alpha});
+      } else if (i % 3 === 1) {
+        ctx.fillStyle = rgba(0, 207, 255, ${alpha});
+      } else {
+        ctx.fillStyle = rgba(191, 0, 255, ${alpha});
+      }
+
+      ctx.font = ${fontSize}px 'Share Tech Mono', monospace;
+      ctx.fillText(char, x, y * fontSize);
+
+      if (y * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0;
+      }
+      drops[i]++;
+    });
+  }
+
+  setInterval(drawMatrix, 50);
+
+  // Floating particles
+  function createParticle() {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 1;
+    const colors = ['#FF1B8D', '#00CFFF', '#BF00FF'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    p.style.cssText = 
+      width: ${size}px;
+      height: ${size}px;
+      background: ${color};
+      box-shadow: 0 0 ${size * 3}px ${color};
+      left: ${Math.random() * 100}vw;
+      animation-duration: ${Math.random() * 8 + 5}s;
+      animation-delay: ${Math.random() * 5}s;
+    ;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 15000);
+  }
+
+  setInterval(createParticle, 400);
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+</script>
+</body>
+</html>
